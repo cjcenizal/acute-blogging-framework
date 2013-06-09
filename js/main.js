@@ -4,7 +4,12 @@ var blog = Acute.makeBlog( {
   data: 'site.json'
 } );
 
+blog.onReady( function() {
+  blog.compile();
+} );
+
 /*
+
 var blog = Acute.makeBlog( {
   name : 'blogsite',
   data: 'site.json',
@@ -13,7 +18,9 @@ var blog = Acute.makeBlog( {
     'postsList'
   }
 } );
+
 blog.onReady( function() {
   console.log( 'blog loaded' )
 } );
+
 */
