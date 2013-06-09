@@ -2,6 +2,10 @@
 var blog = Acute.makeBlog( {
   name : 'blogsite',
   data: 'site.json'
+} ).;
+
+blog.onReady( function() {
+  blog.compile();
 } );
 
 blog.onReady( function() {
