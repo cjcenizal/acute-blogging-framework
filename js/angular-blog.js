@@ -15,6 +15,14 @@
   }
 
   /**
+   * Check if a variable is defined.
+   * @param variable {*} The variable to check.
+   */
+  var is = function( variable ) {
+    return ( !no( variable ) );
+  }
+
+  /**
    * Search an array of objects with various techniques.
    * @param objects {Array} The array of objects to search.
    */
@@ -46,8 +54,11 @@
    * Asynchronously load an external file.
    * @param url {String} Path to the file to load.
    */
-  var load = function( url, onLoadCallback ) {
+  var load = function( url ) {
+
+    var deferred = Q.defer();
     var ajax;
+
     if ( window.XMLHttpRequest ) {
       // code for IE7+, Firefox, Chrome, Opera, Safari
       ajax = new XMLHttpRequest();
@@ -55,13 +66,18 @@
       // code for IE6, IE5
       ajax=new ActiveXObject( "Microsoft.XMLHTTP" );
     }
+
     ajax.onreadystatechange = function() {
       if ( ajax.readyState == 4 && ajax.status == 200 ) {
-        onLoadCallback( ajax.responseText );
+        deferred.resolve( ajax.responseText );
       }
     }
+
     ajax.open( "GET", url, true );
     ajax.send();
+
+    // Return a promise.
+    return deferred.promise;
   }
 
   // TODO: Add these to blog obj?  Put next to the methods that use them?
@@ -78,6 +94,7 @@
    * Make a blog.
    * @param {String} name The name of the site.
    * @param {Object} site The JSON data defining the site structure.
+   * @returns {Object} An AngularJS app decorated with Acute blog methods.
    */
   var makeBlog = function( params ) {
 
@@ -85,9 +102,18 @@
     var siteName = params[ 'name' ],
         jsonUrl = params[ 'data' ];
 
-    load( jsonUrl, onLoaded );
+    // Build our angular app.
+    var app = angular.module( siteName, [] );
+    // TO-DO: Throw errors if we are overwriting any Angular methods or properties.
+    // Incorporate this into tests?
 
-    function onLoaded( siteJson ) {
+    // Set up our onReady handler.
+    app.onReady = function( callback ) {
+      app.onReadyCallback = callback;
+    }
+
+    load( jsonUrl ).then( function( siteJson ) {
+
       var siteStructure = JSON.parse( siteJson );
 
       // Extract site data.
@@ -95,9 +121,7 @@
           pagesData   = siteStructure[ 'pages' ],
           foldersData = siteStructure[ 'folders' ],
           postData    = siteStructure[ 'post' ];
-
-      // Build our angular app.
-      var app = angular.module( siteName, [] );
+      // TO-DO: Throw errors if any data has been left unspecified.
 
       // For each directory in our site structure, create a method
       // allowing us to synthesize a URL to a page within it.
@@ -174,7 +198,7 @@
                 redirectTo: route
               } );
             } else {
-              // TODO: Make a way to unset default.
+              // TODO: Add a way to unset default.
             }
             // Allow chaining.
             return methods;
@@ -323,11 +347,13 @@
         angular.bootstrap( document, [ siteName ]);
       }
 
-      app.compile();
+      if ( is( app.onReadyCallback ) ) {
+        app.onReadyCallback( app );
+      }
 
-      return app;
-    }
+    } );
 
+    return app;
 
   }
 
