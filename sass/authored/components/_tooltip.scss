@@ -1,0 +1,32 @@
+// TOOLTIP.
+
+@import "compass";
+
+.tooltip-trigger {
+  cursor: help;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  background-color: $green;
+  font-family: $base-font;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: lighter;
+  color: white;
+  padding: 14px 20px;
+  @include box-shadow(rgba(0, 0, 0, .1) -4px 4px 0);
+  .tooltip__pointer {
+    $size: 10px;
+    position: absolute;
+    width: 0; 
+    height: 0; 
+    border-left: $size solid transparent;
+    border-right: $size solid transparent;
+    border-top: $size solid $green;
+    left: 50%;
+    margin-left: $size * -1;
+    bottom: -$size;
+  }
+}

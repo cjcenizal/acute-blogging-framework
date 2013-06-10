@@ -1,0 +1,77 @@
+// $Media queries
+//===============================================================================
+
+$break-small: 660px;
+$break-medium: 940px;
+$break-wide: 1400px;
+
+@mixin is( $media ) {
+  // If inside of a breakpoint.
+  @if $media == small {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == medium-small {
+    @media only screen and (min-width: $break-small + 1) and (max-width: $break-medium - 1) { @content; }
+  }
+  @else if $media == medium-wide {
+    @media only screen and (min-width: $break-medium + 1) and (max-width: $break-wide - 1) { @content; }
+  }
+  @else if $media == wide {
+    @media only screen and (min-width: $break-wide) { @content; }
+  }
+  // If less than or equals a breakpoint.
+  @else if $media == small-down {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == medium-small-down {
+    @media only screen and (max-width: $break-medium - 1) { @content; }
+  }
+  @else if $media == medium-wide-down {
+    @media only screen and (max-width: $break-wide - 1) { @content; }
+  }
+  @else if $media == wide-down {
+    @media only screen and (min-width: 0) { @content; }
+  }
+  // If grear than or equals a breakpoint.
+  @else if $media == small-up {
+    @media only screen and (min-width: 0) { @content; }
+  }
+  @else if $media == medium-small-up {
+    @media only screen and (min-width: $break-small) { @content; }
+  }
+  @else if $media == medium-wide-up {
+    @media only screen and (min-width: $break-medium) { @content; }
+  }
+  @else if $media == wide-up {
+    @media only screen and (min-width: $break-wide) { @content; }
+  }
+}
+
+body:after {
+  display: none;
+  @include is( small ) {
+    content: "small";
+  }
+  @include is( medium-small ) {
+    content: "medium-small";
+  }
+  @include is( medium-wide ) {
+    content: "medium-wide";
+  }
+  @include is( wide ) {
+    content: "wide";
+  }
+}
+
+// $Viewport
+//===============================================================================
+
+// http://dev.w3.org/csswg/css-device-adapt/
+// http://timkadlec.com/2012/10/ie10-snap-mode-and-responsive-design/
+// for IE10 Snap Mode on Metro
+@-ms-viewport {
+    width: device-width;
+}
+@viewport {
+    width: device-width;
+}

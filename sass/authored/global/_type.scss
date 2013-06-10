@@ -1,0 +1,124 @@
+// TYPE.
+
+$title-font: 'Raleway', sans-serif;
+$base-font: 'Roboto', sans-serif;
+
+a {
+  color: $red;
+  text-decoration: underline;
+  font-weight: bolder;
+  &:hover {
+  }
+  &:visited {
+    color: $purple;
+  }
+  &:active {
+    color: $orange;
+  }
+}
+
+p {
+  font-family: $base-font;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: normal;
+  /*@include is( small ) {
+    font-size: 14px;
+    line-height: 22px;
+  }*/
+}
+
+h1 {
+  font-family: $title-font;
+  font-weight: normal;
+  font-size: 38px;
+  line-height: 57px;
+  /*@include is( medium-wide-up ) {
+    font-size: 38px;
+    line-height: 57px;
+  }
+  @include is( medium-small-down ) {
+    font-size: 32px;
+    line-height: 48px;
+  }
+  @include is( small ) {
+    font-size: 24px;
+    line-height: 36px;
+  }*/
+}
+
+h2 {
+  font-family: $title-font;
+  font-size: 30px;
+  line-height: 45px;
+  font-weight: normal;
+  /*@include is( medium-wide-up ) {
+    font-size: 22px;
+    line-height: 33px;
+  }
+  @include is( medium-small-down ) {
+    font-size: 20px;
+    line-height: 30px;
+  }
+  @include is( small ) {
+    font-size: 18px;
+    line-height: 27px;
+  }*/
+}
+
+h3 {
+  font-family: $title-font;
+  font-size: 24px;
+  line-height: 46px;
+  font-weight: normal;
+}
+
+h4 {
+  font-family: $title-font;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: normal;
+  /*@include is( small ) {
+    font-size: 14px;
+    line-height: 22px;
+  }*/
+}
+
+// TYPE COLORS.
+
+p,
+h1,
+h2,
+h3,
+h4 {
+  color: $gunmetal;
+}
+
+// TYPE STATE.
+
+/*
+.is-reverse {
+  p, h2 {
+    color: $white;
+  }
+  a {
+    color: #8ce9be;
+    font-weight: bolder;
+    &:visited {
+      color: #ee84b6;
+    }
+    &:active {
+      color: #79caf0;
+    }
+  }
+}
+
+.is-subdued {
+  p {
+    color: #9c9c9c;
+  }
+  h2 {
+    color: #f9aa03;
+  }
+}
+*/

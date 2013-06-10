@@ -1,0 +1,36 @@
+// NAV BAR.
+
+@import "compass";
+
+.navbar {
+  padding: 0;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.navbar__button {
+  display: inline-block;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  font-family: $base-font;
+  font-size: 16px;
+  font-weight: normal;
+  color: $white;
+  text-decoration: none;
+  cursor: pointer;
+  @include text-shadow( rgba( black, 0.2 ) -1px 1px 0 );
+  &:hover {
+    text-decoration: underline;
+  }
+  &:visited {
+    color: $white;
+  }
+  &:active {
+    color: $white;
+  }
+}
+
+.navbar__button--selected {
+  background-image: url( 'images/active-state.png' );
+  @include box-shadow(rgba(0, 0, 0, .1) 0 0 4px 0 inset);
+}

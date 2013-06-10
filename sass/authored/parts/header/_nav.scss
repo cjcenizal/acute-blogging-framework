@@ -1,0 +1,38 @@
+// HEADER NAV.
+
+.site-nav {
+  float: right;
+  margin: 19px 20px 0 0;
+  padding: 0;
+  @include is( small ) {
+    margin-right: 5px;
+  }
+}
+.site-nav__item {
+  display: inline-block;
+  margin-left: 10px;
+
+  a {
+    font-family: $base-font;
+    font-size: 16px;
+    font-weight: bold;
+    color: $blue;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: $blue;
+    }
+
+    &:active {
+      color: $blue;
+    }
+
+    @include is( small ) {
+      font-size: 14px;
+    }
+  }
+}

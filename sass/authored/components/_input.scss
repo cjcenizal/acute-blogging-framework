@@ -1,0 +1,15 @@
+// INPUT BOX.
+
+@import "compass";
+
+input {
+  font-family: $base-font;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: lighter;
+  color: $cool-gray;
+  border: 1px solid #d7d7d7;
+  padding: 12px;
+  @include grid-width( 5 );
+  @include box-shadow(rgba(0, 0, 0, .05) -2px 2px 0 0 inset);
+}

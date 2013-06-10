@@ -1,0 +1,13 @@
+// HEADER.
+
+@import "compass";
+
+.menu-button {
+  float: left;
+  margin: 8px 0 8px 5px;
+  display: none;
+  cursor: pointer;
+  @include is( small ) {
+    display: block;
+  }
+}

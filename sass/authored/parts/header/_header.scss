@@ -1,0 +1,27 @@
+// HEADER.
+
+@import "compass";
+
+$site-header-padding: 20px;
+$site-header-width: $grid-width-px + $site-header-padding * 2;
+
+.site-header {
+  background-color: $white;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: $site-header-width;
+  margin-left: $site-header-width * -.5;
+  z-index: 1000;
+  @include box-shadow(rgba(0, 0, 0, .1) -8px 8px 0);
+  @include is( medium-small-down ) {
+    width: 100%;
+    left: 0;
+    margin-left: 0;
+  }
+  @include clearfix;
+}
+
+.site-header__inner {
+  height: 60px;
+}

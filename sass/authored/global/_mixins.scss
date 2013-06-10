@@ -1,0 +1,13 @@
+// MIXINS.
+
+@import "compass";
+
+@mixin big-shadow {
+  @include box-shadow(rgba(0, 0, 0, .1) -3px 3px 0);
+}
+
+@mixin circle( $diameter ) {
+  @include border-radius( $diameter * .5 );
+  width: $diameter;
+  height: $diameter;
+}

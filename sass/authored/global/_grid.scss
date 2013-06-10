@@ -1,0 +1,73 @@
+// GRID.
+// Inspired by grid-coordinates plugin (https://github.com/adamstac/grid-coordinates)
+
+$grid-columns: 12;
+$grid-column-width-px: 60px;
+$grid-gutter-width-px: 20px;
+$grid-width-px: ( $grid-columns * $grid-column-width-px ) + ( ( $grid-columns - 1 ) * $grid-gutter-width-px );
+$grid-column-width-pct: percentage( $grid-column-width-px / $grid-width-px );
+$grid-gutter-width-pct: percentage( $grid-gutter-width-px / $grid-width-px );
+
+@function grid-width( $cols ) {
+  @return ( $cols * $grid-column-width-px + ( $cols - 1 ) * $grid-gutter-width-px ); 
+}
+
+@function grid-push( $cols ) {
+  @return ( $cols * $grid-column-width-px + $cols * $grid-gutter-width-px );
+}
+
+@mixin grid-width-px( $cols ) {
+  width: grid-width( $cols );
+  margin-left: $grid-gutter-width-px;
+}
+
+@mixin grid-push-px( $cols ) {
+  margin-left: grid-push( $cols );
+}
+
+@mixin grid-width( $cols ) {
+  width: percentage( grid-width( $cols ) / $grid-width-px );
+  margin-left: $grid-gutter-width-pct;
+}
+
+@mixin grid-push( $cols ) {
+  margin-left: percentage( grid-push( $cols ) / $grid-width-px );
+}
+
+@mixin clearfix {
+  display: inline-block;
+  &:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+  }
+}
+
+.clearfix {
+  @include clearfix;
+}
+
+@for $i from 0 through $grid-columns {
+  .grid-#{$i} {
+    float: left;
+    @include grid-width( $i );
+  }
+  .grid-#{$i}-px {
+    float: left;
+    @include grid-width-px( $i );
+  }
+}
+
+@for $i from 0 through $grid-columns {
+  .push-#{$i} {
+    float: left;
+    @include grid-push( $i );
+  }
+  .push-#{$i}-px {
+    float: left;
+    @include grid-push-px( $i );
+  }
+}
