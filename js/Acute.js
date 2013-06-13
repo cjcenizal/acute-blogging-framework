@@ -33,9 +33,7 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
 
     var ng,
       app,
-      pages = [],
-      posts = [],
-      work = [],
+      buckets,
       pageLoadCallbacks = [],
       siteLoadCallbacks = [],
       isSiteLoaded = false;
@@ -56,57 +54,59 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
     }
 
     function buildApp( siteJson ) {
-      var siteStructure = JSON.parse( siteJson );
 
-      // Extract site data.
       // TO-DO: Throw errors if any data has been left unspecified.
-      var postsData   = siteStructure[ 'posts' ],
-          pagesData   = siteStructure[ 'pages' ],
-          workData    = siteStructure[ 'work' ],
-          foldersData = siteStructure[ 'folders' ],
-          postData    = siteStructure[ 'post' ];
+      buckets = JSON.parse( siteJson )[ 'buckets' ];
 
-      work = app.work = workData;
-
-      // For each directory in our site structure, create a method
-      // allowing us to synthesize a URL to a page within it.
-      app.pathTo = {};
-      _.each( foldersData, function( folder ) {
-
-        // Get a URL to a page in a directory, given the page's name.
-        // E.g. pathTo.posts( 'fun' ) returns post/fun.html
-        // Should be getUrlTo( 'posts', 'fun' );
-        app.pathTo[ folder.contentType ] = function( pageName ) {
-          return folder.name + '/' + pageName + '.html';
-        };
-
+      // Give index and path to its template.
+      _.each( buckets, function( bucket ) {
+        _.each( bucket[ 'items' ], function( item, index ) {
+          if ( no( item[ 'index' ] ) ) {
+            item.index = bucket[ 'items' ].length - index;
+            // If this bucket has a template, each item will need its own content template.
+            if ( is( bucket[ 'template' ] ) ) {
+              item.contentPath = 'html/' + bucket[ 'id' ] + '/' + item[ 'url' ] + '.html';
+            }
+          }
+        } );
       } );
 
-      // Store our posts JSON data.
-      posts = postsData;
-      _.each( posts, function( post, index ) {
-        // Assign an index value to each post if it doesn't have one yet.
-        if ( no( post.index ) ) {
-          post.index = posts.length - index;
-        }
-      } );
-
-      /**
-       * Get a post with a given ID.
-       *
-       * @param id {String} The post ID.
-       */
-      var getPost = function( id ) {
-
-        // Return a clone because we don't intend to change this data globally.
-        var post = _.clone( find( posts ).thatHas( 'url', id ) );
-        post.contentPath = app.pathTo.post( id );
-        return post;
-
-      }
-
-      // Configure routes based on our JSON data.
+      // Add routes based on our JSON data.
       app.config( function( $routeProvider ) {
+
+        var isDefault,
+          url,
+          templatePath, 
+          controllerId;
+
+        // Add routes;
+        _.each( buckets, function( bucket ) {
+          
+          if ( is( bucket[ 'template' ] ) ) {
+
+            // If the bucket has a url, then it only needs one route.
+            isDefault = false;
+            controllerId = bucket[ 'template' ];
+            url = '/' + controllerId + '/:url';
+            templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
+            addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+
+          } else {
+
+            // Otherwise, it needs a route per item.
+            _.each( bucket.items, function( item ) {
+
+              isDefault = ( parseInt( item[ 'default' ] ) == 1 );
+              controllerId = item[ 'name' ];
+              url = '/' + item[ 'url' ];
+              templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
+              addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+
+            } );
+            
+          }
+
+        } );
 
         /**
          * Add a route.
@@ -115,13 +115,13 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
          * @param {String} page The route name, i.e. the text for the link to this page.
          * @param {Boolean} isDefault Whether this is the index page or not.
          */
-        var addRoute = function( route, pageName ) {
+        function addRoute( url, templatePath, controllerId ) {
 
           // Set up our Angular routes.
           // The templateURL is synthesized based on our site structure.
-          $routeProvider.when( route, {
-            templateUrl: app.pathTo.page( pageName ),
-            controller: pageName
+          $routeProvider.when( url, {
+            templateUrl: templatePath,
+            controller: controllerId
           } );
           
           // Return a representative object that's really
@@ -130,13 +130,10 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
           
           // Set this route as the default route.
           methods.setDefault = function( isDefault ) {
-            
             if ( isDefault ) {
               $routeProvider.otherwise( {
-                redirectTo: route
+                redirectTo: url
               } );
-            } else {
-              // TODO: Add a way to unset default.
             }
             // Allow chaining.
             return methods;
@@ -145,50 +142,55 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
           return methods;
         }
 
-        // Add routes to the pages in our site.
-        _.each( pagesData, function( route ) {
-          // Set the first page to be the default.
-          var isDefault = ( pages.length == 0 );
-          addRoute( route.url, route.name ).setDefault( isDefault );
-          pages.push( route );
-        
+      } );
+
+      // Add controllers.
+      _.each( buckets, function( bucket ) {
+
+        if ( is( bucket[ 'template' ] ) ) {
+
+          // If the bucket has a template, then it only needs one controller.
+          app.controller( bucket[ 'template' ], function( $scope, $routeParams ) {
+
+            giveScopeData( $scope );
+            // Cache the item under this bucket.
+            $scope.item = getItem( bucket, $routeParams[ 'url' ] );
+            pageIsLoaded();
+
+          } );
+
+        } else {
+
+          // Otherwise, it needs a controller per item.
+          _.each( bucket[ 'items' ], function( item ) {
+
+            app.controller( item[ 'name' ], function( $scope, $routeParams ) {
+
+              giveScopeData( $scope );
+              pageIsLoaded();
+
+            } );
+
+          } );
+        }
+      } );
+
+      /*
+       * Get a given bucket item.
+       */
+      function getItem( bucket, url ) {
+        // Return a clone because we don't intend to change this data globally.
+        return _.clone( find( bucket[ 'items' ] ).thatHas( 'url', url ) );
+      }
+
+      /*
+       * Copy all buckets so they can be referenced semantically.
+       */
+      function giveScopeData( scope ) {
+        _.each( buckets, function( bucket ) {
+          scope[ bucket[ 'id' ] ] = bucket[ 'items' ];
         } );
-
-        // Add a route for posts.
-        addRoute( postData.url, 'post' );
-
-      } );
-
-      // Add a controller for each non-Post page.
-      _.each( pagesData, function( route ) {
-
-        app.controller( route.name, function( $scope, $routeParams ) {
-
-          // This data is available to each page.
-          $scope.posts = posts;
-          $scope.pages = pages;
-          $scope.work = work;
-
-          console.log($scope.work)
-
-          pageIsLoaded();
-        
-        } );
-
-      } );
-
-      // Add a controller for a Post.
-      app.controller( 'post', function( $scope, $routeParams ) {
-        
-        // This data is available to each post.
-        $scope.posts = posts;
-        $scope.pages = pages;
-        $scope.work = work;
-        $scope.post = getPost( $routeParams.id );
-
-        pageIsLoaded();
-
-      } );
+      }
 
       // Let Angular compile the document.
       app.start = function() {
@@ -345,10 +347,11 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
     //-------------------------------------------------------------//
 
     // Build our angular app.
-    app = angular.module( siteName, [] );
     // TO-DO: Throw errors if we are overwriting any Angular methods or properties.
     // Incorporate this into tests?
+    app = angular.module( siteName, [] );
 
+    // Load site data.
     if ( is( jsonUrl ) ) {
       load();
     }

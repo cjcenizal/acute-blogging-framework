@@ -31,7 +31,7 @@ blog.onReady( function() {
 
       restrict: 'E',
       replace: true,
-      templateUrl: blog.pathTo.component( 'posts-list' ),
+      templateUrl: 'html/components/posts-list.html',
       scope: { list: '=' }
 
     }
@@ -45,7 +45,7 @@ blog.onReady( function() {
 
       restrict: 'E',
       replace: true,
-      templateUrl: blog.pathTo.component( 'sidebar' ),
+      templateUrl: 'html/components/sidebar.html',
       scope: { list: '=' }
 
     }

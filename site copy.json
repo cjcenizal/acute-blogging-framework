@@ -1,0 +1,17 @@
+{
+  "pages" : [
+    { "url": "/", "name": "Home" },
+    { "url": "/about", "name": "About" }
+  ],
+  "post" : { "url": "/post/:id" },
+  "posts" : [
+    { "url": "angular-blog-says-hi-there", "name": "Angular Blog Says Hi There", "date": "5-14-2013" },
+    { "url": "customizing-your-blog", "name": "Customizing your blog", "date": "5-13-2013" },
+    { "url": "learn-some-angular", "name": "Learning AngularJS", "date": "5-12-2013" }
+  ],
+  "folders" : [
+    { "contentType": "post", "name" : "posts" },
+    { "contentType": "component", "name" : "components" },
+    { "contentType": "page", "name" : "pages" }
+  ]
+}
