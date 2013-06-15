@@ -1,36 +1,32 @@
+
 {
-  "buckets" : [
-    {
-      "id" : "pages",
-      "items" : [
-        { "url": "", "name": "Home", "default": "1" },
-        { "url": "about", "name": "About" }
-      ]
-    },
-    {
-      "id" : "posts",
-      "template" : "post",
-      "items" : [
-        { "url": "angular-blog-says-hi-there", "name": "Angular Blog Says Hi There", "date": "5-14-2013" },
-        { "url": "customizing-your-blog", "name": "Customizing your blog", "date": "5-13-2013" },
-        { "url": "learn-some-angular", "name": "Learning AngularJS", "date": "5-12-2013" }
-      ]
-    },
-    {
-      "id" : "projects",
-      "template" : "project",
-      "items" : [
-        {
-          "url" : "acute-blogging-framework",
-          "name" : "Acute: simple blogging framework",
-          "pic" : "images/thumbs/acute.jpg"
-        },
-        {
-          "url" : "as3-for-noobs-tutorial",
-          "name" : "Super-easy ActionScript 3 tutorial",
-          "pic" : "images/thumbs/as3fornoobs.jpg"
-        }
-      ]
-    }
-  ]
+  "data" : {
+    "version" : "0.1"
+  },
+  "pages" : {
+    "items" : [
+      { "url": "home", "name": "Home", "default": "1" },
+      { "url": "about", "name": "About" }
+    ]
+  },
+  "posts" : {
+    "template" : "post",
+    "items" : [
+      {
+        "url": "blog-post-1",
+        "title": "Blog post 1",
+        "date": "Sunday June 9, 2013"
+      },
+      {
+        "url": "blog-post-2",
+        "title": "Blog post 2",
+        "date": "Sunday June 9, 2013"
+      },
+      {
+        "url": "blog-post-3",
+        "title": "Blog post 3",
+        "date": "Sunday June 9, 2013"
+      }
+    ]
+  }
 }

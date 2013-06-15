@@ -18,6 +18,8 @@ Todo:
 
 var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
 
+  var DATA_ID = 'data';
+
   /**
    * Make an Acute blog.
    *
@@ -55,20 +57,39 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
 
     function buildApp( siteJson ) {
 
+      app.data = {};
+
       // TO-DO: Throw errors if any data has been left unspecified.
-      buckets = JSON.parse( siteJson )[ 'buckets' ];
+      buckets = JSON.parse( siteJson );
 
       // Give index and path to its template.
-      _.each( buckets, function( bucket ) {
+      _.each( buckets, function( bucket, key ) {
+
+        // We will need to acccess a bucket's key independently.
+        bucket[ 'id' ] = key;
+
+        // Store each bucket's items array as a property of the app,
+        // to expose it for external use.
+        app.data[ bucket[ 'id' ] ] = bucket[ 'items' ];
+
         _.each( bucket[ 'items' ], function( item, index ) {
+
           if ( no( item[ 'index' ] ) ) {
+            
+            // Assign it its index.
             item.index = bucket[ 'items' ].length - index;
+            
+            // Give it a valid URL.
+            swapUrlAndId( bucket, item );
+
             // If this bucket has a template, each item will need its own content template.
             if ( is( bucket[ 'template' ] ) ) {
-              item.contentPath = 'html/' + bucket[ 'id' ] + '/' + item[ 'url' ] + '.html';
+              item.contentPath = 'html/' + bucket[ 'id' ] + '/' + item[ 'id' ] + '.html';
             }
+
           }
         } );
+
       } );
 
       // Add routes based on our JSON data.
@@ -82,28 +103,32 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
         // Add routes;
         _.each( buckets, function( bucket ) {
           
-          if ( is( bucket[ 'template' ] ) ) {
+          if ( !isData( bucket ) ) {
 
-            // If the bucket has a url, then it only needs one route.
-            isDefault = false;
-            controllerId = bucket[ 'template' ];
-            url = '/' + controllerId + '/:url';
-            templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
-            addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+            if ( is( bucket[ 'template' ] ) ) {
 
-          } else {
-
-            // Otherwise, it needs a route per item.
-            _.each( bucket.items, function( item ) {
-
-              isDefault = ( parseInt( item[ 'default' ] ) == 1 );
-              controllerId = item[ 'name' ];
-              url = '/' + item[ 'url' ];
+              // If the bucket has a url, then it only needs one route.
+              isDefault = false;
+              controllerId = bucket[ 'template' ];
+              url = '/' + controllerId + '/:url';
               templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
               addRoute( url, templatePath, controllerId ).setDefault( isDefault );
 
-            } );
-            
+            } else {
+
+              // Otherwise, it needs a route per item.
+              _.each( bucket.items, function( item ) {
+
+                isDefault = ( parseInt( item[ 'default' ] ) == 1 );
+                controllerId = item[ 'id' ];
+                url = '/' + item[ 'id' ];
+                templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
+                addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+
+              } );
+              
+            }
+
           }
 
         } );
@@ -147,53 +172,130 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
       // Add controllers.
       _.each( buckets, function( bucket ) {
 
-        if ( is( bucket[ 'template' ] ) ) {
+        if ( !isData( bucket ) ) {
 
-          // If the bucket has a template, then it only needs one controller.
-          app.controller( bucket[ 'template' ], function( $scope, $routeParams ) {
+          if ( is( bucket[ 'template' ] ) ) {
 
-            giveScopeData( $scope );
-            // Cache the item under this bucket.
-            $scope.item = getItem( bucket, $routeParams[ 'url' ] );
-            pageIsLoaded();
-
-          } );
-
-        } else {
-
-          // Otherwise, it needs a controller per item.
-          _.each( bucket[ 'items' ], function( item ) {
-
-            app.controller( item[ 'name' ], function( $scope, $routeParams ) {
+            // If the bucket has a template, then it only needs one controller.
+            app.controller( bucket[ 'template' ], function( $scope, $routeParams ) {
 
               giveScopeData( $scope );
+              // Cache the item under this bucket.
+              $scope.item = getItem( bucket, $routeParams[ 'url' ] );
               pageIsLoaded();
 
             } );
 
-          } );
+          } else {
+
+            // Otherwise, it needs a controller per item.
+            _.each( bucket[ 'items' ], function( item ) {
+
+              app.controller( item[ 'id' ], function( $scope ) {
+
+                giveScopeData( $scope );
+                pageIsLoaded();
+
+              } );
+
+            } );
+          }
         }
       } );
 
-      /*
-       * Get a given bucket item.
-       */
-      function getItem( bucket, url ) {
-        // Return a clone because we don't intend to change this data globally.
-        return _.clone( find( bucket[ 'items' ] ).thatHas( 'url', url ) );
-      }
+      // Create global scope.
+      app.controller( 'SiteController', function( $scope ) {
+
+        giveScopeData( $scope );
+
+      } );
 
       /*
        * Copy all buckets so they can be referenced semantically.
        */
       function giveScopeData( scope ) {
+
         _.each( buckets, function( bucket ) {
-          scope[ bucket[ 'id' ] ] = bucket[ 'items' ];
+
+          var obj = {};
+          
+          if ( isData( bucket ) ) {
+
+            // Assign properties.
+            obj = _.omit( bucket, 'id' );
+
+          } else {
+
+            // Assign items.
+            _.each( bucket[ 'items' ], function( item ) {
+              obj[ item[ 'id' ] ] = item;
+            } );
+            obj[ 'list' ] = bucket[ 'items' ];
+
+          }
+
+          scope[ bucket[ 'id' ] ] = obj;
         } );
+        console.log(scope)
+      }
+
+      /**
+       * We need to expose the URL as the actual URL, not the one
+       * in the JSON file. SO we store the JSON url as an ID property,
+       * and assign a new Angularized URL.
+       */
+      function swapUrlAndId( bucket, item ) {
+        var url = angularizeUrl( bucket, item );
+        item.id = item.url;
+        item.url = url;
+      }
+
+      /**
+       * Convert an item's URL into a full URL based on
+       * its template's URL (if any), and prepending the #.
+       *
+       * @param {Object} bucket The item's bucket.
+       * @param {Object} item The item.
+       */
+      function angularizeUrl( bucket, item ) {
+
+        if ( is( bucket[ 'template' ] ) ) {
+          // If the bucket has a template, the URL includes the bucket and item url.
+          return  makeUrl( [ '/#', bucket[ 'template' ], item[ 'url' ] ] );
+        } else {
+          // If not, then it only includes the item url.
+          return makeUrl( [ '/#', item[ 'url' ] ] );
+        }
+
+      }
+
+      /**
+       * Turn an array of strings into a URL by joining them on slashes.
+       *
+       * @param {Array} parts An array of strings.
+       */
+      function makeUrl( parts ) {
+        return parts.join( '/' );
+      }
+
+      /**
+       * Get a given bucket item that has a specific URL.
+       */
+      function getItem( bucket, url ) {
+        // Return a clone because we don't intend to change this data globally.
+        return _.clone( find( bucket[ 'items' ] ).thatHas( 'id', url ) );
+      }
+
+      /**
+       * Determine if this bucket needs a route + controller.
+       */
+      function isData( bucket ) {
+        return bucket[ 'id' ] == DATA_ID;
       }
 
       // Let Angular compile the document.
       app.start = function() {
+        console.log('start', buckets)
         angular.bootstrap( document, [ siteName ]);
       }
 
