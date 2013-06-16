@@ -1,15 +1,13 @@
 Acute.js
 ==========
 
-Want a blog that’s easy to update, but also 100% your own? That’s what [Acute.js](https://github.com/cjcenizal/acute-blogging-framework) is for.
+## Want a blog that’s easy to update, but also 100% your own? That’s what [Acute.js](https://github.com/cjcenizal/acute-blogging-framework) is for.
 
-Chickity-check it out
-------------------------
+### Chickity-check it out
 
 Acute isn’t quite ready for game-time, but you can check out the source on [GitHub](https://github.com/cjcenizal/acute-blogging-framework). I’m currently dogfooding it on my own site, if you want to see a demo: [cenizal.com](http://www.cenizal.com).
 
-These are the priciples behind Acute.js.
--------------------------------------------
+### These are the priciples behind Acute.js.
 
 #### Spend your time *creating* content, not working to get it on your site.
 
