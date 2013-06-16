@@ -119,11 +119,16 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
               // Otherwise, it needs a route per item.
               _.each( bucket.items, function( item ) {
 
-                isDefault = ( parseInt( item[ 'default' ] ) == 1 );
-                controllerId = item[ 'id' ];
-                url = '/' + item[ 'id' ];
-                templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
-                addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+                // The item only needs a controller if it is a relative URL.
+                if ( isRelativeUrl( item[ 'url' ] ) ) {
+
+                  isDefault = ( parseInt( item[ 'default' ] ) == 1 );
+                  controllerId = item[ 'id' ];
+                  url = '/' + item[ 'id' ];
+                  templatePath = 'html/' + bucket[ 'id' ] + '/' + controllerId + '.html';
+                  addRoute( url, templatePath, controllerId ).setDefault( isDefault );
+
+                }
 
               } );
               
@@ -236,7 +241,7 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
 
           scope[ bucket[ 'id' ] ] = obj;
         } );
-        console.log(scope)
+
       }
 
       /**
@@ -245,7 +250,7 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
        * and assign a new Angularized URL.
        */
       function swapUrlAndId( bucket, item ) {
-        var url = angularizeUrl( bucket, item );
+        var url = ( isRelativeUrl( item[ 'url' ] ) ? angularizeUrl( bucket, item ) : item[ 'url' ] );
         item.id = item.url;
         item.url = url;
       }
@@ -293,9 +298,17 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
         return bucket[ 'id' ] == DATA_ID;
       }
 
-      // Let Angular compile the document.
+      /**
+       * Identify whether this link is relative to the site, or absolute.
+       */
+      function isRelativeUrl( url ) {
+        return !( url.indexOf( 'http://' ) == 0 || url.indexOf( 'https://' ) == 0 );
+      }
+
+      /**
+       * Let Angular compile the document.
+       */
       app.start = function() {
-        console.log('start', buckets)
         angular.bootstrap( document, [ siteName ]);
       }
 
@@ -390,25 +403,6 @@ var Acute = window[ 'Acute' ] = ( function( window, document, undefined ) {
      */
     function onSiteLoad( callback ) {
       siteLoadCallbacks.push( callback );
-    }
-
-    function fadeInSite() {
-
-      var $viewport = $( '#viewport' );
-      $viewport.hide();
-
-      setTimeout( function() {
-        $viewport.fadeIn( 200 );
-      }, 50 );
-
-      if ( !siteLoaded ) {
-
-        setTimeout( function() {
-          $( '#header' ).fadeIn( 200 );
-        }, 50 );
-        siteLoaded = true;
-
-      }
     }
 
     /**
