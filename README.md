@@ -17,6 +17,6 @@ Your website is just a context for presenting content to the world. Acute.js aim
 
 Your site shouldn’t depend on a database or server-side code. It should just be the basics: HTML, CSS, and JavaScript.  All of these files should be logically organized in folders. As an administrator, you should be able to see your entire site represented as an object in a single easy-to-scan file.
 
-#### Customize the way your site *&looks**, without worrying about breaking the way it **works**.
+#### Customize the way your site **looks**, without worrying about breaking the way it **works**.
 
 Acute.js should just be an engine that automatically ties together your content. You should be able to change your site’s skin without the skeleton getting in the way.
